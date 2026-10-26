@@ -16,6 +16,18 @@ One WordPress panel that brings together:
 
 It has no outside dependency. Everything lives under **WP Bridge** in the admin menu.
 
+<p align="center">
+  <a href="https://edu.sepodesk.com/sponsor/projects-maintenance/">
+    <img src="https://img.shields.io/badge/%E2%9D%A4%20SUPPORT%20OUR%20OPEN--SOURCE%20PROJECTS-0b6b45?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="Support Our Open-Source Projects" />
+  </a>
+</p>
+
+<p align="center">
+  Your support helps us maintain, improve and build open-source software for everyone.
+  <br />
+  <strong>Every contribution makes a difference. Thank you for supporting our work!</strong>
+</p>
+
 ## Contents
 
 - [Features](#features)
