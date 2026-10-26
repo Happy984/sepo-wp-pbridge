@@ -502,8 +502,13 @@
         return '<div class="wb-card" data-key="' + esc(g.ID) + '" data-search="' + esc((g.ID + ' ' + g.title + ' ' + fields.map(function (f) { return f.id + ' ' + f.label; }).join(' ')).toLowerCase()) + '">'
           + '<h3>' + esc(g.title || g.ID) + '</h3>'
           + '<div class="wb-meta">' + esc((g.assign_to || []).map(function (s) { return ptLabel(META.postTypes, s); }).join(', ') || '—') + ' · ' + esc(g.context === 'side' ? __('sidebar') : __('main column')) + '</div>'
+          + '<div class="wb-meta-tags">'
+          + (g.display === 'before' || g.display === 'after' ? '<span class="wb-tag wb-tag--on">' + esc(g.display === 'before' ? __('Shown before the content') : __('Shown after the content')) + '</span>' : '<span class="wb-tag">' + esc(__('Placed by hand')) + '</span>')
+          + ' <button type="button" class="wb-copy-code" data-copy="[sepo_fields group=&quot;' + esc(g.ID) + '&quot;]" title="' + esc(__('Copy shortcode')) + '"><code>[sepo_fields group="' + esc(g.ID) + '"]</code></button>'
+          + '</div>'
           + (fields.length ? '<ul class="wb-fields">' + fields.map(function (f) {
-            return '<li><span>' + esc(f.label) + ' <em>' + esc(typeLabels[f.type] || f.type) + ' · <code>' + esc(f.id) + '</code></em></span>'
+            return '<li><span>' + esc(f.label) + ' <em>' + esc(typeLabels[f.type] || f.type) + ' · <code>' + esc(f.id) + '</code>'
+              + (f.column ? ' · ' + esc(__('list column')) : '') + (f.show === false ? ' · ' + esc(__('hidden on the site')) : '') + '</em></span>'
               + '<button type="button" class="wb-btn wb-btn--sm wb-btn--link" data-field-del="' + esc(f.id) + '" aria-label="' + esc(sprintf(__('Remove field %s'), f.label)) + '">' + esc(__('Remove')) + '</button></li>';
           }).join('') + '</ul>' : '<p class="wb-note">' + esc(__('No fields yet.')) + '</p>')
           + '<div class="wb-card-actions"><button type="button" class="wb-btn wb-btn--sm" data-edit>' + esc(__('Edit')) + '</button><button type="button" class="wb-btn wb-btn--sm wb-btn--danger" data-delete>' + esc(__('Delete')) + '</button></div></div>';
@@ -514,6 +519,13 @@
 
   panel('metagroups').addEventListener('click', function (ev) {
     if (ev.target.closest('[data-wb-add]')) return metaEditor(null);
+    var cp = ev.target.closest('[data-copy]');
+    if (cp) {
+      var text = cp.getAttribute('data-copy');
+      if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () { toast(__('Shortcode copied.')); }, function () { toast(text); });
+      else toast(text);
+      return;
+    }
     var card = ev.target.closest('[data-key]');
     if (!card) return;
     var g = META.rows.filter(function (r) { return r.ID === card.getAttribute('data-key'); })[0];
@@ -548,11 +560,15 @@
       + '<label class="wb-field">' + esc(__('Help text')) + '<input data-mf="description" type="text" value="' + esc(field.description || '') + '"></label>'
       + '</div>'
       + '<label class="wb-field" data-mf-options' + (field.type === 'select' ? '' : ' hidden') + '>' + esc(__('Choices, one per line (value|label)')) + '<textarea data-mf="options" rows="3">' + esc(opts) + '</textarea></label>'
+      + '<div class="wb-checks wb-mf-flags">'
+      + '<label><input type="checkbox" data-mf-flag="show"' + (field.show === false ? '' : ' checked') + '> ' + esc(__('Show on the site')) + '</label>'
+      + '<label><input type="checkbox" data-mf-flag="column"' + (field.column ? ' checked' : '') + '> ' + esc(__('Column in the posts list')) + '</label>'
+      + '</div>'
       + '</div>';
   }
 
   function metaEditor(initial) {
-    var g = initial || { ID: '', title: '', assign_to: ['post'], context: 'normal', priority: 'default', fields: [] };
+    var g = initial || { ID: '', title: '', assign_to: ['post'], context: 'normal', priority: 'default', display: 'none', style: 'table', show_title: false, fields: [] };
     modal({
       title: initial ? sprintf(__('Edit "%s"'), g.title) : __('New field group'),
       body: '<div class="wb-grid2">'
@@ -565,6 +581,16 @@
         + [['high', __('Top')], ['default', __('Normal')], ['low', __('Bottom')]].map(function (o) { return '<option value="' + o[0] + '"' + (g.priority === o[0] ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('')
         + '</select></label></div>'
         + '<fieldset class="wb-field"><legend>' + esc(__('Show on')) + '</legend>' + checks('assign_to', META.postTypes, g.assign_to, true) + '</fieldset>'
+        + '<div class="wb-params"><p class="wb-params-h">' + esc(__('On the site')) + '</p><div class="wb-grid2">'
+        + '<label class="wb-field">' + esc(__('Add to each post automatically')) + '<select data-f="display">'
+        + [['none', __('No — I place it with a block, shortcode or Elementor widget')], ['before', __('Yes, before the content')], ['after', __('Yes, after the content')]].map(function (o) { return '<option value="' + o[0] + '"' + ((g.display || 'none') === o[0] ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('')
+        + '</select></label>'
+        + '<label class="wb-field">' + esc(__('Style')) + '<select data-f="style">'
+        + [['table', __('Table — label beside value')], ['grid', __('Grid — small tiles')], ['inline', __('Inline — one line')]].map(function (o) { return '<option value="' + o[0] + '"' + ((g.style || 'table') === o[0] ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('')
+        + '</select></label></div>'
+        + '<label class="wb-field wb-field--check"><input type="checkbox" data-f="show_title"' + (g.show_title ? ' checked' : '') + '> <span>' + esc(__('Show the box title as a heading above the fields')) + '</span></label>'
+        + (g.ID ? '<p class="wb-help">' + esc(__('To place it yourself:')) + ' <code>[sepo_fields group="' + esc(g.ID) + '"]</code> ' + esc(__('or the Field group block or Elementor widget.')) + '</p>' : '')
+        + '</div>'
         + '<div class="wb-metafields" data-mf-list>' + (g.fields || []).map(fieldRow).join('') + '</div>'
         + '<button type="button" class="wb-btn" data-mf-add>+ ' + esc(__('Add field')) + '</button>',
       onOpen: function (card) {
@@ -602,10 +628,15 @@
               else { var k = line.slice(0, bar).trim(); if (k) options[k] = line.slice(bar + 1).trim() || k; }
             });
           }
-          fields.push({ id: id, label: label, type: rv('type'), description: rv('description'), options: options });
+          fields.push({
+            id: id, label: label, type: rv('type'), description: rv('description'), options: options,
+            show: row.querySelector('[data-mf-flag="show"]').checked,
+            column: row.querySelector('[data-mf-flag="column"]').checked
+          });
         });
         return post('/metagroups/save', {
           id: v('id'), title: v('title'), context: v('context'), priority: v('priority'),
+          display: v('display'), style: v('style'), show_title: card.querySelector('[data-f="show_title"]').checked,
           assign_to: checked(card, 'assign_to'), fields: fields
         }).then(function () { toast(__('Field group saved.')); loaders.metagroups(); });
       }
@@ -690,6 +721,18 @@
       .catch(function (e) { toast(e.message, true); })
       .then(function () { btn.disabled = false; });
   });
+
+  // ------------------------------------------------------------------ shared with other panel scripts
+  window.SepoWBAdmin = {
+    root: root, cfg: cfg, __: __, sprintf: sprintf, esc: esc, get: get, post: post,
+    toast: toast, modal: modal, confirmModal: confirmModal, panel: panel, setState: setState,
+    /** Register a tab's loader; runs at once when that tab is already open. */
+    addLoader: function (slug, fn) {
+      loaders[slug] = function () { loaded[slug] = true; fn(); };
+      var p = panel(slug);
+      if (p && !p.hidden && !loaded[slug]) loaders[slug]();
+    }
+  };
 
   // ------------------------------------------------------------------ start
   var start = root.querySelector('[data-wb-tab].is-on');

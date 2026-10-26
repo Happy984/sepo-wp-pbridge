@@ -56,15 +56,28 @@ final class AdminController
         if ($hook !== $this->hookSuffix) {
             return;
         }
-        wp_enqueue_style('sepo-wb-admin', SEPO_WB_URL . 'assets/css/admin.css', [], SEPO_WB_VERSION);
-        wp_enqueue_script('sepo-wb-admin', SEPO_WB_URL . 'assets/js/admin.js', ['wp-i18n'], SEPO_WB_VERSION, true);
+        wp_enqueue_style('sepo-wb-admin', SEPO_WB_URL . 'assets/css/admin.css', [], self::assetVersion('assets/css/admin.css'));
+        wp_enqueue_script('sepo-wb-admin', SEPO_WB_URL . 'assets/js/admin.js', ['wp-i18n'], self::assetVersion('assets/js/admin.js'), true);
         wp_set_script_translations('sepo-wb-admin', 'sepo-wp-bridge');
+        wp_enqueue_style('sepo-wb-cookies-admin', SEPO_WB_URL . 'assets/css/cookies-admin.css', ['sepo-wb-admin'], self::assetVersion('assets/css/cookies-admin.css'));
+        wp_enqueue_script('sepo-wb-cookies-admin', SEPO_WB_URL . 'assets/js/cookies-admin.js', ['sepo-wb-admin'], self::assetVersion('assets/js/cookies-admin.js'), true);
+        wp_set_script_translations('sepo-wb-cookies-admin', 'sepo-wp-bridge');
+        wp_enqueue_style('sepo-wb-signin-admin', SEPO_WB_URL . 'assets/css/signin-admin.css', ['sepo-wb-admin'], self::assetVersion('assets/css/signin-admin.css'));
+        wp_enqueue_script('sepo-wb-signin-admin', SEPO_WB_URL . 'assets/js/signin-admin.js', ['sepo-wb-admin'], self::assetVersion('assets/js/signin-admin.js'), true);
+        wp_set_script_translations('sepo-wb-signin-admin', 'sepo-wp-bridge');
         wp_localize_script('sepo-wb-admin', 'SepoWB', [
             'api'       => esc_url_raw(rest_url('sepo-wb/v1')),
             'nonce'     => wp_create_nonce('wp_rest'),
             'adminUrl'  => esc_url_raw(admin_url()),
             'canManage' => current_user_can('manage_options'),
         ]);
+    }
+
+    /** The plugin version plus the file's change time, so browsers fetch an edited file at once. */
+    private static function assetVersion(string $rel): string
+    {
+        $file = SEPO_WB_DIR . $rel;
+        return SEPO_WB_VERSION . (is_file($file) ? '.' . filemtime($file) : '');
     }
 
     public function render(): void

@@ -564,6 +564,8 @@ final class SchemaManager
                 'type'        => $type,
                 'description' => sanitize_text_field((string) ($f['description'] ?? '')),
                 'options'     => $type === 'select' ? $cleanOpts : [],
+                'show'        => !array_key_exists('show', $f) || !empty($f['show']),
+                'column'      => !empty($f['column']),
             ];
         }
 
@@ -573,6 +575,10 @@ final class SchemaManager
             'context'   => in_array($data['context'] ?? '', ['normal', 'side', 'advanced'], true) ? (string) $data['context'] : 'normal',
             'priority'  => in_array($data['priority'] ?? '', ['default', 'high', 'low'], true) ? (string) $data['priority'] : 'default',
             'fields'    => $fields,
+            // How the group appears on the site: added to the content automatically or not, and its look.
+            'display'   => in_array($data['display'] ?? '', ['none', 'before', 'after'], true) ? (string) $data['display'] : 'none',
+            'style'     => in_array($data['style'] ?? '', ['table', 'grid', 'inline'], true) ? (string) $data['style'] : 'table',
+            'show_title'=> !empty($data['show_title']),
         ];
         update_option(self::OPT_META, $all);
     }

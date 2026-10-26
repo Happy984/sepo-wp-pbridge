@@ -131,3 +131,8 @@
   .wb-cards { grid-template-columns: 1fr; }
   .wb-toast { left: 12px; right: 12px; bottom: 12px; }
 }
+.wb-meta-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: -2px 0 8px; }
+.wb-copy-code { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 1px 6px; border: 1px solid var(--wb-line); border-radius: 4px; background: var(--wb-soft); cursor: copy; font: inherit; }
+.wb-copy-code:hover { background: #fff; }
+.wb-copy-code code { background: none; padding: 0; font-size: 11px; }
+.wb-mf-flags { margin-top: 2px; font-size: 13px; }

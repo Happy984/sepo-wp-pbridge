@@ -4,7 +4,7 @@
   <header class="wb-head">
     <div class="wb-kicker"><?php esc_html_e('Sepo · WordPress bridge', 'sepo-wp-bridge'); ?></div>
     <h1 class="wb-title"><?php esc_html_e('WordPress configuration', 'sepo-wp-bridge'); ?></h1>
-    <p class="wb-sub"><?php esc_html_e('Switch security and performance features on or off, and manage the post types, taxonomies, custom fields and membership tiers this plugin owns.', 'sepo-wp-bridge'); ?></p>
+    <p class="wb-sub"><?php esc_html_e('Switch security and performance features on or off, and manage the post types, taxonomies, custom fields, membership tiers and cookie banner this plugin owns.', 'sepo-wp-bridge'); ?></p>
   </header>
 
   <nav class="wb-tabs" role="tablist" aria-label="<?php esc_attr_e('Sections', 'sepo-wp-bridge'); ?>">

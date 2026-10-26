@@ -38,6 +38,7 @@ final class Plugin
 
     public static function deactivate(): void
     {
+        wp_clear_scheduled_hook(Consent\ConsentLog::CRON);
         flush_rewrite_rules();
     }
 
@@ -45,6 +46,7 @@ final class Plugin
     public static function upgrade(): void
     {
         (new FeatureRegistry())->mergeNewDefaults();
+        Consent\ConsentLog::install();
 
         // 1.0 kept handler settings in a separate option.
         $params = get_option('sepo_wb_handler_params', null);
@@ -96,6 +98,10 @@ final class Plugin
         Integration\NavVisibility::hook();
         Integration\MembershipGate::hook();
         Integration\Blocks::hook();
+        Integration\FieldDisplay::hook();
+        Integration\Elementor::hook();
+        Consent\Consent::hook();
+        SignIn\SignIn::hook();
 
         if (is_admin()) {
             Integration\MembershipAdmin::hook();
@@ -104,6 +110,7 @@ final class Plugin
 
         add_action('rest_api_init', function (): void {
             (new Rest\RestController($this->registry, $this->state, $this->schema))->registerRoutes();
+            Consent\ConsentRest::register();
         });
 
         add_action('init', static function (): void {

@@ -14,6 +14,8 @@ final class View
             'taxonomies' => __('Taxonomies', 'sepo-wp-bridge'),
             'metagroups' => __('Meta fields', 'sepo-wp-bridge'),
             'membership' => __('Membership', 'sepo-wp-bridge'),
+            'cookies'    => __('Cookies', 'sepo-wp-bridge'),
+            'signin'     => __('Sign-in', 'sepo-wp-bridge'),
         ];
     }
 

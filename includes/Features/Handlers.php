@@ -174,6 +174,8 @@ class Handlers
     /** @param string[] $allow REST namespaces signed-out visitors may still use */
     public function restrictRestApi(array $allow = ['oembed/1.0']): void
     {
+        // The sign-in provider returns visitors here before they are signed in.
+        $allow[] = 'sepo-wb/v1/auth';
         add_filter('rest_authentication_errors', static function ($result) use ($allow) {
             if (!empty($result) || is_user_logged_in()) {
                 return $result;
@@ -205,7 +207,9 @@ class Handlers
 
     public function hideLoginErrors(): void
     {
-        add_filter('login_errors', static fn() => esc_html__('Login failed.', 'sepo-wp-bridge'));
+        // Sign-in step messages (expired, wrong code, cancelled) say nothing about
+        // whether an account exists, so they are kept; everything else is replaced.
+        add_filter('login_errors', static fn($msg) => str_contains((string) $msg, 'sepo-si-msg') ? $msg : esc_html__('Login failed.', 'sepo-wp-bridge'));
     }
 
     public function disableUserEnumeration(): void
@@ -489,6 +493,9 @@ class Handlers
                     break;
                 case 'register':
                     $title = __('Create an account', 'sepo-wp-bridge');
+                    break;
+                case 'sepo_2fa':
+                    $title = __('Verification code', 'sepo-wp-bridge');
                     break;
                 case 'confirm_admin_email':
                 case 'postpass':
