@@ -152,7 +152,7 @@ There are several ways to show fields on the site:
 3. Go to **Plugins** and activate **Sepo WordPress Bridge**.
 
 > [!NOTE]
-> GitHub's **Code → Download ZIP** names the folder after the branch, for example `sepo-wp-bridge-main`. Rename it to `sepo-wp-bridge` before uploading.
+> GitHub's **Code → Download ZIP** names the folder after the branch, for example `sepo-wp-pbridge-main`. Rename it to `sepo-wp-bridge` before uploading.
 
 ## Getting started
 
